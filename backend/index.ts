@@ -1,11 +1,17 @@
-import express from 'express';
+import express from "express";
+import prisma from "./lib/prisma.js";
 
 const app = express();
 
-app.get('/', (req, res) => {
-  res.send('Hello, World!');
+app.get("/", (_req, res) => {
+  res.send("Hello, world!");
+});
+
+app.get("/test-db", async (_req, res) => {
+  const result = await prisma.$queryRaw`SELECT 1`;
+  res.json({ ok: true, result });
 });
 
 app.listen(3000, () => {
-  console.log('Server is running on http://localhost:3000');
+  console.log("Server running on http://localhost:3000");
 });

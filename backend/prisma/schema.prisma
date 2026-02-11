@@ -14,9 +14,184 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  createdAt DateTime @default(now())
+  id              String   @id @default(cuid())
+  githubId        String   @unique
+  username        String
+  email           String?
+  avatarUrl       String?
+  accessToken     String   // encrypted
+  refreshToken    String?  // encrypted
+  tokenExpiresAt  DateTime?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  projects        Project[]
+  sessions        Session[]
+  aiUsages        AIUsage[]
+  webContainers   WebContainerSession[]
+  editorStates EditorState[]
 }
 
+model Session {
+  id          String   @id @default(cuid())
+  userId      String
+  ipAddress   String?
+  userAgent   String?
+  isActive    Boolean  @default(true)
+
+  createdAt   DateTime @default(now())
+  expiresAt   DateTime?
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Project {
+  id            String   @id @default(cuid())
+  name          String
+  description   String?
+  isPrivate     Boolean  @default(true)
+
+  userId        String
+  repoId        String?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  repository    Repository?
+  files         File[]
+  chatSessions  ChatSession[]
+  editorStates  EditorState[]
+  webContainers WebContainerSession[]
+}
+
+model Repository {
+  id            String   @id @default(cuid())
+  githubRepoId  String   @unique
+  name          String
+  owner         String
+  defaultBranch String
+
+  projectId     String   @unique
+
+  createdAt     DateTime @default(now())
+
+  project       Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  commits       Commit[]
+}
+
+model File {
+  id          String   @id @default(cuid())
+  projectId   String
+  path        String
+  name        String
+  extension   String?
+  content     String?
+  isDirectory Boolean  @default(false)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  snapshots   FileSnapshot[]
+
+  @@unique([projectId, path])
+}
+
+model FileSnapshot {
+  id        String   @id @default(cuid())
+  fileId   String
+  content  String
+  reason   String?  // "AI_EDIT", "UNDO", "AUTOSAVE"
+
+  createdAt DateTime @default(now())
+
+  file      File     @relation(fields: [fileId], references: [id], onDelete: Cascade)
+}
+
+model EditorState {
+  id          String   @id @default(cuid())
+  userId      String
+  projectId   String
+
+  openFiles   Json
+  activeFile  String?
+  cursorLine  Int?
+  cursorCol   Int?
+  layout      Json?
+
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, projectId])
+}
+
+model ChatSession {
+  id          String   @id @default(cuid())
+  projectId   String
+  title       String?
+
+  createdAt   DateTime @default(now())
+
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  messages    ChatMessage[]
+}
+
+model ChatMessage {
+  id              String   @id @default(cuid())
+  chatSessionId   String
+  role            ChatRole
+  content         String
+  referencedFiles Json?
+
+  createdAt       DateTime @default(now())
+
+  chatSession     ChatSession @relation(fields: [chatSessionId], references: [id], onDelete: Cascade)
+}
+
+enum ChatRole {
+  USER
+  ASSISTANT
+  SYSTEM
+}
+
+model AIUsage {
+  id                String   @id @default(cuid())
+  userId            String
+  model             String
+  promptTokens      Int
+  completionTokens  Int
+  cost              Float?
+
+  createdAt         DateTime @default(now())
+
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model WebContainerSession {
+  id        String   @id @default(cuid())
+  userId    String
+  projectId String
+
+  createdAt DateTime @default(now())
+  expiresAt DateTime?
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, projectId])
+}
+
+model Commit {
+  id            String   @id @default(cuid())
+  repositoryId  String
+  sha           String
+  message       String
+  author        String
+  committedAt   DateTime
+
+  repository    Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+}

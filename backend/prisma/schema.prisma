@@ -19,7 +19,7 @@ model User {
   username        String
   email           String?
   avatarUrl       String?
-  accessToken     String   // encrypted
+  accessToken     String  // encrypted
   refreshToken    String?  // encrypted
   tokenExpiresAt  DateTime?
 
@@ -30,7 +30,9 @@ model User {
   sessions        Session[]
   aiUsages        AIUsage[]
   webContainers   WebContainerSession[]
-  editorStates EditorState[]
+  editorStates    EditorState[]
+
+  @@index([githubId])
 }
 
 model Session {
@@ -44,6 +46,7 @@ model Session {
   expiresAt   DateTime?
 
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId])
 }
 
 model Project {
@@ -64,6 +67,8 @@ model Project {
   chatSessions  ChatSession[]
   editorStates  EditorState[]
   webContainers WebContainerSession[]
+
+  @@index([userId])
 }
 
 model Repository {
@@ -97,6 +102,7 @@ model File {
   snapshots   FileSnapshot[]
 
   @@unique([projectId, path])
+  @@index([projectId])
 }
 
 model FileSnapshot {
@@ -108,6 +114,7 @@ model FileSnapshot {
   createdAt DateTime @default(now())
 
   file      File     @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  @@index([fileId])
 }
 
 model EditorState {
@@ -138,6 +145,8 @@ model ChatSession {
 
   project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   messages    ChatMessage[]
+
+  @@index([projectId])
 }
 
 model ChatMessage {
@@ -150,6 +159,8 @@ model ChatMessage {
   createdAt       DateTime @default(now())
 
   chatSession     ChatSession @relation(fields: [chatSessionId], references: [id], onDelete: Cascade)
+
+   @@index([chatSessionId])
 }
 
 enum ChatRole {
@@ -169,6 +180,8 @@ model AIUsage {
   createdAt         DateTime @default(now())
 
   user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model WebContainerSession {
@@ -194,4 +207,6 @@ model Commit {
   committedAt   DateTime
 
   repository    Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+  
+  @@index([repositoryId])
 }

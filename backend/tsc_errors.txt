@@ -1,0 +1,16 @@
+﻿controllers/ai.controller.ts(44,56): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+controllers/file.controller.ts(34,52): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+controllers/file.controller.ts(44,45): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+controllers/file.controller.ts(53,32): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+controllers/project.controller.ts(49,52): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+controllers/project.controller.ts(65,51): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+controllers/project.controller.ts(74,35): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+controllers/project.controller.ts(89,9): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.

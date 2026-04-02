@@ -1,5 +1,8 @@
 declare namespace Express {
   interface Request {
-    user?: any;
+    user?: {
+      userId: string;
+      githubId: string;
+    };
   }
 }

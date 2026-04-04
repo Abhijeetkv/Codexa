@@ -33,13 +33,13 @@
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
-   cd VMC02
+   cd Codexa
    ```
 
 2. **Set up the database**
    ```bash
    # Create a PostgreSQL database
-   createdb vmc02_dev
+   createdb codexa_dev
    ```
 
 3. **Configure environment variables**
@@ -48,10 +48,10 @@
    cd backend
    cp .env.example .env
    ```
-   
+
    Update the `.env` file with:
    ```env
-   DATABASE_URL="postgresql://username:password@localhost:5432/vmc02_dev"
+   DATABASE_URL="postgresql://username:password@localhost:5432/codexa_dev"
    GITHUB_CLIENT_ID="your_github_client_id"
    GITHUB_CLIENT_SECRET="your_github_client_secret"
    GITHUB_CALLBACK_URL="http://localhost:3000/api/auth/github/callback"
@@ -94,17 +94,23 @@
 ## 📁 Project Structure
 
 ```
-VMC02/
+Codexa/
 ├── README.md
-├── backend/                 # Express.js API server
-│   ├── index.ts            # Main server entry point
-│   ├── package.json        # Backend dependencies
+├── package.json        # Root package.json (if using monorepo)
+├── backend/            # Express.js API server
+│   ├── index.ts        # Main server entry point
+│   ├── package.json    # Backend dependencies
+│   ├── package-lock.json
 │   ├── prisma.config.ts    # Prisma configuration
-│   ├── tsconfig.json       # TypeScript configuration
+│   ├── tsconfig.json   # TypeScript configuration
 │   ├── config/
 │   │   └── env.ts          # Environment configuration
 │   ├── controllers/        # Request handlers
-│   │   └── auth.controller.ts
+│   │   ├── auth.controller.ts
+│   │   ├── ai.controller.ts
+│   │   ├── file.controller.ts
+│   │   ├── github.controller.ts
+│   │   └── project.controller.ts
 │   ├── generated/          # Generated Prisma client
 │   │   └── prisma/         # Prisma client types and models
 │   ├── lib/
@@ -115,17 +121,28 @@ VMC02/
 │   │   ├── schema.prisma   # Database schema definition
 │   │   └── migrations/     # Database migration files
 │   ├── routes/             # API endpoints
-│   │   └── auth.routes.ts
+│   │   ├── auth.routes.ts
+│   │   ├── ai.routes.ts
+│   │   ├── file.routes.ts
+│   │   ├── github.routes.ts
+│   │   └── project.routes.ts
 │   ├── services/           # Business logic
-│   │   └── auth.service.ts
+│   │   ├── auth.service.ts
+│   │   ├── ai.service.ts           # AI integration service
+│   │   ├── file.service.ts         # File management service
+│   │   ├── project.service.ts      # Project management service
+│   │   └── github.service.ts       # GitHub API integration
 │   ├── types/              # TypeScript type definitions
 │   │   └── express.d.ts
 │   └── utils/              # Utility functions
 │       └── jwt.ts
 └── frontend/               # React application
     ├── package.json        # Frontend dependencies
+    ├── package-lock.json   # Dependency lock file
     ├── vite.config.ts      # Vite configuration
     ├── tsconfig.json       # TypeScript configuration
+    ├── tsconfig.app.json   # App TypeScript configuration
+    ├── tsconfig.node.json  # Node TypeScript configuration
     ├── eslint.config.js    # ESLint configuration
     ├── index.html          # HTML entry point
     ├── public/             # Static assets
@@ -134,10 +151,43 @@ VMC02/
         ├── main.tsx        # React app entry point
         ├── App.css         # Global styles
         ├── index.css       # Base styles
+        ├── api/            # API client services
+        │   ├── ai.ts
+        │   ├── auth.ts
+        │   ├── client.ts
+        │   ├── files.ts
+        │   ├── github.ts
+        │   └── projects.ts
         ├── assets/         # Static assets
         ├── components/     # Reusable React components
-        └── pages/          # Page components
-            └── HomePage.tsx
+        │   ├── editor/
+        │   │   ├── CodeEditor.tsx
+        │   │   └── EditorTabs.tsx
+        │   ├── layout/
+        │   │   ├── Sidebar.tsx
+        │   │   ├── StatusBar.tsx
+        │   │   └── Topbar.tsx
+        │   ├── modals/
+        │   │   ├── LoginModal.tsx
+        │   │   ├── NewFileModal.tsx
+        │   │   └── NewProjectModal.tsx
+        │   └── panels/
+        │       ├── AIChat.tsx
+        │       ├── FileExplorer.tsx
+        │       ├── GitPanel.tsx
+        │       ├── SearchPanel.tsx
+        │       └── Terminal.tsx
+        ├── pages/          # Page components
+        │   ├── AuthCallback.tsx
+        │   └── IDEPage.tsx
+        ├── stores/         # State management
+        │   ├── authStore.ts
+        │   ├── editorStore.ts
+        │   ├── projectStore.ts
+        │   └── uiStore.ts
+        └── utils/          # Utility functions
+            ├── fileIcons.ts
+            └── languages.ts
 ```
 
 ## 🔧 Development
@@ -257,23 +307,27 @@ The application uses PostgreSQL with Prisma ORM. Key entities include:
 - `GET /api/auth/github/callback` - Handle OAuth callback
 - `POST /api/auth/logout` - End user session
 
-### Projects (Planned)
+### Projects
 - `GET /api/projects` - List user projects
 - `POST /api/projects` - Create new project
 - `GET /api/projects/:id` - Get project details
 - `PUT /api/projects/:id` - Update project
 - `DELETE /api/projects/:id` - Delete project
 
-### Files (Planned)
+### Files
 - `GET /api/projects/:id/files` - List project files
 - `POST /api/projects/:id/files` - Create/upload file
 - `PUT /api/files/:id` - Update file content
 - `GET /api/files/:id/snapshots` - Get file version history
 
-### Chat (Planned)
+### Chat
 - `POST /api/projects/:id/chat` - Start chat session
 - `POST /api/chat/:id/messages` - Send chat message
 - `GET /api/chat/:id/history` - Get chat history
+
+### AI Services
+- `GET /api/ai/models` - List available AI models
+- `POST /api/ai/usage` - Track AI model usage
 
 ## 🔮 Future Enhancements
 

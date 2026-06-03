@@ -50,9 +50,17 @@ export const fileController = {
 
   async delete(req: Request, res: Response) {
     try {
-      await fileService.delete(req.params.id);
+      const result = await fileService.delete(req.params.id);
+      if (!result) {
+        res.status(404).json({ error: "File not found" });
+        return;
+      }
       res.json({ message: "File deleted" });
     } catch (error: any) {
+      if (error.code === "P2025") {
+        res.status(404).json({ error: "File not found" });
+        return;
+      }
       res.status(500).json({ error: error.message });
     }
   },

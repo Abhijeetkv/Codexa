@@ -45,6 +45,22 @@ export const fileService = {
   },
 
   async delete(id: string) {
+    const file = await prisma.file.findUnique({ where: { id } });
+    if (!file) return null;
+
+    if (file.isDirectory) {
+      await prisma.file.deleteMany({
+        where: {
+          projectId: file.projectId,
+          OR: [
+            { path: file.path },
+            { path: { startsWith: `${file.path}/` } },
+          ],
+        },
+      });
+      return file;
+    }
+
     return prisma.file.delete({ where: { id } });
   },
 
@@ -53,7 +69,7 @@ export const fileService = {
     return prisma.file.deleteMany({
       where: {
         projectId,
-        path: { startsWith: path },
+        OR: [{ path }, { path: { startsWith: `${path}/` } }],
       },
     });
   },
